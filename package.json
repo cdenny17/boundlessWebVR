@@ -48,6 +48,7 @@
   "dependencies": {
     "@babel/polyfill": "^7.4.0",
     "core-js": "^3.0.1",
-    "three": "^0.106.2"
+    "three": "^0.106.2",
+    "three-fbx-loader": "^1.0.3"
   }
 }
