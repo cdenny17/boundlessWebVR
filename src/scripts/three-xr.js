@@ -14,6 +14,8 @@ let xrSession = null;
 let xrReferenceSpace = null;
 let leftButtonsDown = [];
 let rightButtonsDown = [];
+let rightPosition = null;
+let leftPosition = null;
 
 /**
  * This checks for VR capable devices
@@ -111,6 +113,8 @@ function onDrawFrame(timestamp, xrFrame) {
             for (let inputSource of inputSources) {
                 //https://www.w3.org/TR/webxr/#xrframe-interface
                 let inputPose = xrFrame.getPose(inputSource.gripSpace, xrReferenceSpace);
+
+                if(!inputPose) continue;
 
                 //if the inputsource reports that it is the left hand
                 if(inputSource.handedness === "left") {
@@ -246,6 +250,8 @@ function renderLeftHand(transform) {
     //sets threejs matrix from what is received from webxr api
     posMatrix.fromArray(transform.matrix);
 
+    leftPosition = transform.position;
+
     //updates position of object
     leftHand.matrix.copy(posMatrix);
 }
@@ -260,8 +266,11 @@ function renderRightHand(transform) {
 
     let posMatrix = new THREE.Matrix4();
     posMatrix.fromArray(transform.matrix);
+    rightPosition = transform.position;
     rightHand.matrix.copy(posMatrix);
+    // console.log(rightHand);
 }
+
 
 /**
  * 
@@ -305,6 +314,13 @@ export function setRightHand(object) {
     rightHand = object;
 }
 
+export function getRightHandPostion() {
+    return rightPosition;
+}
+
+export function getLeftHandPostion() {
+    return leftPosition;
+}
 /**
  * 
  * @param {DOMCanvas} _glCanvas 
