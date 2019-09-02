@@ -17,13 +17,13 @@ var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHei
 var renderer = new THREE.WebGLRenderer({ canvas: glCanvas });
 var light = new THREE.DirectionalLight(0xffffff, 10);
 var ambLight = new THREE.AmbientLight(0xffffff);
-var cube = new THREE.Mesh(new THREE.CubeGeometry(20, 20, 20), new THREE.MeshLambertMaterial({color: new THREE.Color(0xbbbbbb)}));
+var cube = new THREE.Mesh(new THREE.CubeGeometry(0.3, 0.3, 0.3), new THREE.MeshLambertMaterial({color: new THREE.Color(0x555555)}));
 var plane = new THREE.Mesh(new THREE.PlaneBufferGeometry(100,100,10,10), new THREE.MeshBasicMaterial({color: new THREE.Color(0xbbbbbb)}));
 plane.position.y = -2;
 plane.position.z = 0;
 plane.rotateX(degrees_to_radians(-90));
 cube.position.y = 0;
-cube.position.z = -40;
+cube.position.z = -3;
 var distance = 0;
 var leftHand = null;
 var rightHand = null;
@@ -32,8 +32,9 @@ var arrowClone = null;
 var arrowCloneOrigin = 0;
 var arrowClonePosition = null;
 var shotArrow = null;
+
 // add the object to the scene
-// scene.add(cube);
+scene.add(cube);
 //scene.add(plane);
 scene.add(light);
 scene.add(ambLight);
@@ -138,7 +139,7 @@ function handle_load(gltf) {
     arrowClone.position.z += 0.25;
     arrowCloneOrigin = arrowClone.position.y;
 
-    leftHand.add(arrowClone);
+    // leftHand.add(arrowClone);
     
     rightHand = new THREE.Group();
     rightHand.add(arrow);
@@ -152,12 +153,12 @@ function handle_load(gltf) {
 
 
 
-rightHand = new THREE.Mesh(new THREE.SphereBufferGeometry(0.1, 10, 10), new THREE.MeshBasicMaterial({color: new THREE.Color(0xff0000)}));
-rightHand.position.z = -10;
-rightHand.position.x = -1;
-scene.add(rightHand);
+var sphere = new THREE.Mesh(new THREE.SphereBufferGeometry(0.1, 10, 10), new THREE.MeshBasicMaterial({color: new THREE.Color(0xff0000)}));
+sphere.position.z = -10;
+sphere.position.x = -1;
+scene.add(sphere);
 
-ThreeXr.setRightHand(rightHand);
+// ThreeXr.setRightHand(rightHand);
 
 ThreeXr.addButtonPressListener("right", 0, function() {
     console.log("right handle buttons squeezed");
@@ -168,21 +169,35 @@ ThreeXr.addButtonPressListener("right", 0, function() {
 
 ThreeXr.addButtonReleaseListener("right", 0, function() {
     console.log('right handle button squeeze released');
+    // var rightPosition = ThreeXr.getRightHandPostion();
+    // arrowClonePosition = new THREE.Vector3(rightPosition.x, rightPosition.y, rightPosition.z);
     triggerDownRight = false;
-    stringBone.position.y = -1.4162278175354004;
-    arrowClone.position.y = arrowCloneOrigin;
-    shotArrow = arrowClone.clone();
-    let position = new THREE.Vector3();
-    arrowClone.getWorldPosition(position);
-    let rotation = new THREE.Quaternion();
-    arrowClone.getWorldQuaternion(rotation);
+    
+    // arrowClone.position.y = arrowCloneOrigin;
+    // shotArrow = arrowClone.clone();
+    // shotArrow.matrixAutoUpdate = false;
+    // let position = new THREE.Vector3();
+    // arrowClone.getWorldPosition(shotArrow.position);
+    // let rotation = new THREE.Quaternion();
+    // // arrowClone.getWorldQuaternion(shotArrow.rotation);
 
-    //shotArrow.applyMatrix(arrowClone.matrixWorld);
-    // shotArrow.position = arrowClone.position;
-    // shotArrow.rotation = arrowClone.rotation;
-    shotArrow.speed = distance/20;
-    scene.add(shotArrow);
-
+    // shotArrow.applyMatrix(arrowClone.matrixWorld);
+    // // shotArrow.position.x = 0;
+    // // shotArrow.position.y = 0;
+    // // shotArrow.position.z = 0;
+    // // shotArrow.rotation = rotation;
+    // shotArrow.speed = distance/20;
+    // scene.add(shotArrow);
+    // console.log(shotArrow);
+    ThreeXr.setRightHand(null);
+    rightHand.children[0].speed = distance/2;
+    // rightHand.matrixAutoUpdate = true;
+   // rightHand.updateMatrix();
+   stringBone.position.y = -1.4162278175354004;
+   var rightHandReload = rightHand.clone();
+   scene.add(rightHandReload);
+   rightHand = rightHandReload;
+   ThreeXr.setRightHand(rightHand);
 });
 
 function checkCollision() {
@@ -204,6 +219,7 @@ ThreeXr.setUpdate(() => {
 
     var leftPosition = ThreeXr.getLeftHandPostion();
     var rightPosition = ThreeXr.getRightHandPostion();
+    
 
 
 
@@ -215,14 +231,39 @@ ThreeXr.setUpdate(() => {
         if(stringBone && triggerDownRight) {
             let arrowDistance = arrowClonePosition.distanceTo(rightVector);
             stringBone.position.y = Math.min(distance * -12, -1.4162278175354004);
-            arrowClone.position.y = arrowCloneOrigin + arrowDistance;
+
+            
+            // arrowClone.position.y = arrowCloneOrigin + arrowDistance;
             // console.log(stringBone);
         }
     }
+    cube.geometry.computeBoundingBox();
+    var box = cube.geometry.boundingBox.clone();
+    cube.updateMatrixWorld( true );
+    box.copy( cube.geometry.boundingBox ).applyMatrix4( cube.matrixWorld );
 
-    if(shotArrow) {
-        //shotArrow.position.x+=shotArrow.speed;
-    }
+    scene.traverse(child => {
+        if (child.speed) {
+            child.position.z -= child.speed;
+            child.geometry.computeBoundingBox();
+            var arrowBox = child.geometry.boundingBox.clone();
+            child.updateMatrixWorld( true );
+            arrowBox.copy( child.geometry.boundingBox ).applyMatrix4( child.matrixWorld );
+
+
+            if (arrowBox.intersectsBox(box)) {
+                console.log("intersection");
+                child.speed = 0;
+            }
+        }
+    });
+
+    // if(rightHand.speed) {
+
+    //     //shotArrow.position.x+=shotArrow.speed;
+    //     //console.log('shooting', rightHand.position.z);
+    //     rightHand.children[0].position.z -= rightHand.speed;
+    // }
 });
 
 ThreeXr.checkForXRSupport().then(supported => {
