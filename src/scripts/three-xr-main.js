@@ -1,3 +1,3 @@
-const xr = require('./three-xr.js');
+const ThreeXr = require('./three-xr.js');
 
-export default xr;
+export default ThreeXr;

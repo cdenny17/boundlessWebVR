@@ -1,10 +1,134 @@
-$body-color: blue;
-
+$body-color: white;
+$white: #ffffff;
+$dark-text: #222222;
+@import url('https://fonts.googleapis.com/css?family=Righteous|Source+Sans+Pro:300,400&display=swap');
+button {
+    display: block;
+    padding: 30px;
+    font-size: 2em;
+    font-family: 'Source Sans Pro', sans-serif; 
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0);
+    border: 1px solid white;
+    border-radius: 10px;
+    cursor: pointer;
+    transform: scale(0.8);
+    transition: 300ms all;
+    &:hover {
+        transform: scale(1);
+    }
+}
 body {
-  color: $body-color;
+  color: $dark-text;
   margin: 0;
+  font-family: 'Source Sans Pro', sans-serif;
 }
 canvas {
     width: 100%;
     height: 100%;
+}
+
+.first {
+    background-color: #120c2f;
+    color: #ffffff;
+    width: 100%;
+    a {
+        color: #19a15f;
+        &:visited {
+            color: #19a15f;
+        }
+    }
+}
+.third {
+    background-color: #120c2f;
+    color: #ffffff;
+    width: 100%;
+    a {
+        color: #19a15f;
+        &:visited {
+            color: #19a15f;
+        }
+    }
+}
+
+.wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    .background {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+        background-image: url(../image/backLight2.jpg);
+        width: 100%;
+        height: 90vh;
+        font-family: 'Righteous', cursive;
+        color: $white;
+
+        h1 {
+            font-size: 9vw;
+            text-align: center;
+        }
+    }
+    .container {
+        display: flex;
+        flex-direction: column;
+        max-width: 1024px;
+        width: 100%;
+        padding: 2%;
+        &.chrome {
+            flex-direction: row;
+
+            img {
+               height: 80px;
+            }
+            video {
+                height: 100px;
+                padding-left: 2%;
+            }
+            p {
+                padding-left: 2%
+            }
+        }
+        &.vr {
+            flex-direction: row;
+
+            img {
+               height: 80px;
+               min-width: 80px;
+            }
+            p {
+                padding-left: 2%
+            }
+        }
+        &.steam {
+            flex-direction: row;
+
+            img {
+               height: 80px;
+               min-width: 80px;
+            }
+            p {
+                padding-left: 2%
+            }
+        }
+        &.flags {
+            flex-direction: row;
+
+            img {
+               height: 80px;
+               min-width: 80px;
+            }
+           
+        }
+    }
+}
+footer.wrapper .container {
+    padding: 0;
 }
