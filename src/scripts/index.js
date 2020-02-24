@@ -3,7 +3,18 @@ import * as THREE from 'three';
 import ThreeXr from './three-xr-main';
 import bow from '../objects/bow9.gltf';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-
+import targetImg from '../image/target.png';
+import px from '../image/cubemap/px.png';
+import nx from '../image/cubemap/nx.png';
+import py from '../image/cubemap/py.png';
+import ny from '../image/cubemap/ny.png';
+import pz from '../image/cubemap/pz.png';
+import nz from '../image/cubemap/nz.png';
+import background from '../image/depot.png';
+import albedo from '../image/albedo.png';
+import bump from '../image/bump.png';
+import rough from '../image/rough.png';
+import { TetrahedronGeometry } from 'three';
 
 function degrees_to_radians(degrees) {
   var pi = Math.PI;
@@ -12,15 +23,50 @@ function degrees_to_radians(degrees) {
 
 let glCanvas = document.createElement("canvas");
 var scene = new THREE.Scene();
+// let cubeTexture = new THREE.CubeTextureLoader()
+// 	.load( [
+// 		px,
+// 		nx,
+// 		py,
+// 		ny,
+// 		pz,
+// 		nz
+// 	] );
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 var renderer = new THREE.WebGLRenderer({ canvas: glCanvas });
-var light = new THREE.DirectionalLight(0xffffff, 10);
-var ambLight = new THREE.AmbientLight(0xffffff);
-var cube = new THREE.Mesh(new THREE.CubeGeometry(0.3, 0.3, 0.3), new THREE.MeshLambertMaterial({color: new THREE.Color(0x555555)}));
-var cubeBig = new THREE.Mesh(new THREE.CubeGeometry(0.5, 0.5, 0.5), new THREE.MeshLambertMaterial({color: new THREE.Color(0xbbbbbb), map: new THREE.VideoTexture(targ)}));
+var light = new THREE.DirectionalLight(0xffffff, 1);
+var ambLight = new THREE.AmbientLight(0xaaaaaa);
+var backgroundTexture = new THREE.TextureLoader().load(background);
+var cube = new THREE.Mesh(new THREE.CubeGeometry(0.3, 0.3, 0.3), new THREE.MeshLambertMaterial({color: new THREE.Color(0xffffff)}));
+var skyCube = new THREE.Mesh(new THREE.SphereBufferGeometry(50, 50, 50), new THREE.MeshBasicMaterial({map:backgroundTexture, side:THREE.DoubleSide} ) );
+var texture = new THREE.TextureLoader().load( targetImg );
+var albedoTexture = new THREE.TextureLoader().load( albedo );
+var bumpTexture = new THREE.TextureLoader().load( bump );
+var roughTexture = new THREE.TextureLoader().load( rough );
+var floorMaterial = new THREE.MeshStandardMaterial({
+    map: albedoTexture, 
+    normalMap: bumpTexture, 
+    roughnessMap: roughTexture, 
+    metalness: 0.5,
+    roughness: 1,
+    normalScale: new THREE.Vector2(3,3)
+});
+floorMaterial.map.wrapS = THREE.RepeatWrapping;
+floorMaterial.map.wrapT = THREE.RepeatWrapping;
+floorMaterial.map.repeat.set( 4, 2 );
+floorMaterial.normalMap.wrapS = THREE.RepeatWrapping;
+floorMaterial.normalMap.wrapT = THREE.RepeatWrapping;
+floorMaterial.normalMap.repeat.set( 2, 2 );
+
+floorMaterial.roughnessMap.wrapS = THREE.RepeatWrapping;
+floorMaterial.roughnessMap.wrapT = THREE.RepeatWrapping;
+floorMaterial.roughnessMap.repeat.set( 4, 2 );
+
 var targ = document.getElementById('targ');
-var plane = new THREE.Mesh(new THREE.PlaneBufferGeometry(100,100,10,10), new THREE.MeshBasicMaterial({color: new THREE.Color(0x555555)}));
-plane.position.y = -2;
+var cubeBig = new THREE.Mesh(new THREE.CubeGeometry(0.5, 0.5, 0.5), new THREE.MeshBasicMaterial({color: new THREE.Color(0xffffff), map: texture}));
+
+var plane = new THREE.Mesh(new THREE.PlaneBufferGeometry(10,10,10,10), floorMaterial);
+plane.position.y = -1.5;
 plane.position.z = 0;
 plane.rotateX(degrees_to_radians(-90));
 cube.position.y = 0;
@@ -43,7 +89,7 @@ scene.add(cubeBig);
 scene.add(plane);
 scene.add(light);
 scene.add(ambLight);
-
+scene.add(skyCube);
 var loader = new GLTFLoader();
 loader.load(bow, handle_load,
 ( xhr ) => {
@@ -65,10 +111,10 @@ var stringBone = null;
 function handle_load(gltf) {
     console.log(gltf);
     mesh = gltf.scene.children[1];
-    mesh.material = new THREE.MeshBasicMaterial({color: new THREE.Color(0xbbbbbb)});
+    mesh.material = new THREE.MeshLambertMaterial({color: new THREE.Color(0xbbbbbb)});
     mesh.material.side = THREE.DoubleSide;
     mesh.traverse(child => {        
-            child.material = new THREE.MeshLambertMaterial({color: new THREE.Color(0xb06331), skinning: true});
+            child.material = new THREE.MeshLambertMaterial({color: new THREE.Color(0x5e3c1e), skinning: true});
     });
 
     
@@ -88,7 +134,7 @@ function handle_load(gltf) {
     ThreeXr.setLeftHand(leftHand);
 
     var arrow = gltf.scene.children[1];
-    arrow.material = new THREE.MeshLambertMaterial({color: new THREE.Color(0xD2691E)});
+    arrow.material = new THREE.MeshLambertMaterial({color: new THREE.Color(0x5e3c1e)});
     let scale = 0.1;
     arrow.scale.y = scale;
     arrow.scale.z = scale;
