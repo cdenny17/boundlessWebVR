@@ -36,7 +36,7 @@ export function checkForXRSupport() {
 function beginXRSession() {
     // requestSession must be called within a user gesture event
     // like click or touch when requesting an immersive session.
-    navigator.xr.requestSession('immersive-vr')
+    navigator.xr.requestSession('immersive-vr', {requiredFeatures: ['local']})
         .then(onSessionStarted)
         .catch(err => {
             // May fail for a variety of reasons. Probably just want to
