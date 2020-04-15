@@ -208,12 +208,11 @@ ThreeXr.setUpdate(() => {
 });
 
 ThreeXr.checkForXRSupport().then(supported => {
-    var enterXrBtn = document.createElement("button");
-    enterXrBtn.innerHTML = "Enter VR";
-    enterXrBtn.addEventListener("click", () => {
+    var enterXrBtn = document.getElementById("button-start");
+       enterXrBtn.addEventListener("click", () => {
         ThreeXr.start(glCanvas, scene, camera, renderer); 
     });
-    document.getElementById('header').appendChild(enterXrBtn);
+    
 }).catch(e => {
     console.error(e);
 });
